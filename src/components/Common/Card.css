@@ -1,0 +1,10 @@
+.pop-up {
+  width: 350px;
+  height: 600px;
+  margin-top: 50px;
+  transition: transform 0.3s ease;
+}
+
+.pop-up:hover {
+  transform: scale(1.1);
+}

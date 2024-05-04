@@ -4,6 +4,8 @@ import styles from "./LandingPage.module.css";
 import Card from "../Common/Card";
 import { Fetch_Job_Data } from "../../CommonHelperFunctions";
 const LandingPage = () => {
+  //! STATES
+
   const [minExp, setMinExp] = useState("default");
   const [role, setRole] = useState("default");
   const [companyName, setCompanyName] = useState("default");
@@ -11,6 +13,8 @@ const LandingPage = () => {
   const [minBasePay, setMinBasePay] = useState("default");
   const [techStack, setTechStack] = useState("default");
   const [jobData, setJobData] = useState();
+
+  //! HANDLER FUNCTIONS
 
   const handleMinExpChange = (event) => {
     setMinExp(event.target.value);
@@ -34,6 +38,8 @@ const LandingPage = () => {
   const handleTechStackChange = (event) => {
     setTechStack(event.target.value);
   };
+
+  //! USE EFFECT
 
   useEffect(() => {
     const fetchData = async () => {
@@ -163,14 +169,9 @@ const LandingPage = () => {
           </div>
         </div>
         <div className="w-[calc(100% - 100px)] h-[700px] flex flex-row flex-wrap gap-[100px] overflow-y-auto">
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
+          {jobData?.jdList?.map((item) => (
+            <Card jobDetails={item} key={item.jdUid} />
+          ))}
         </div>
       </div>
     </div>
