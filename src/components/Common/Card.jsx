@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { capitalizeFirstLetter } from "../../CommonHelperFunctions";
-import { NavLink } from "react-router-dom";
 import tick from "../../assets/tick.png";
 import FadingText from "./FadingText";
 import "./Card.css";
 
 const Card = (props) => {
   const jobDetails = props?.jobDetails;
-  const [expanded, setExpanded] = useState(false);
-  console.log(jobDetails);
+  // const [expanded, setExpanded] = useState(false);
   return (
     <div className="w-[350px] h-[600px] mt-[50px] pop-up">
       <div className="w-full h-full flex flex-col items-start border rounded-2xl p-4">

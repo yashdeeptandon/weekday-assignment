@@ -11,3 +11,22 @@
   font-optical-sizing: auto;
   font-style: normal;
 }
+
+/* Style for the main content */
+.job_main_content::-webkit-scrollbar {
+  width: 12px; /* Width of the scrollbar */
+}
+
+.job_main_content::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Track color */
+  border-radius: 8px; /* Rounded corners for the track */
+}
+
+.job_main_content::-webkit-scrollbar-thumb {
+  background: #888; /* Thumb color */
+  border-radius: 8px; /* Rounded corners for the thumb */
+}
+
+.job_main_content::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Hover color for the thumb */
+}

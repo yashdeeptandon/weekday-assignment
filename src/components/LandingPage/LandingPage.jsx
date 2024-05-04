@@ -3,6 +3,8 @@ import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import styles from "./LandingPage.module.css";
 import Card from "../Common/Card";
 import { Fetch_Job_Data } from "../../CommonHelperFunctions";
+import Loading from "../Common/Loading";
+
 const LandingPage = () => {
   //! STATES
 
@@ -13,6 +15,10 @@ const LandingPage = () => {
   const [minBasePay, setMinBasePay] = useState("default");
   const [techStack, setTechStack] = useState("default");
   const [jobData, setJobData] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  console.log("Page:", page);
+  const limit = 10; // Number of jobs to fetch per request or Number of items per page
 
   //! HANDLER FUNCTIONS
 
@@ -42,15 +48,40 @@ const LandingPage = () => {
   //! USE EFFECT
 
   useEffect(() => {
-    const fetchData = async () => {
-      const data = await Fetch_Job_Data();
-      setJobData(data);
-    };
-
     fetchData();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]); // Fetch data when the page state changes
 
-  console.log(jobData);
+  const fetchData = async () => {
+    setIsLoading(true);
+    const offset = (page - 1) * limit;
+    const data = await Fetch_Job_Data(limit, offset);
+    // setJobData(data);
+    setJobData((prevData) => ({
+      ...data,
+      jdList: [...(prevData?.jdList || []), ...data.jdList], // Append new job listings
+    }));
+    setIsLoading(false);
+  };
+
+  const handleScroll = () => {
+    const element = document.querySelector(".job-main-content");
+    console.log("Element", element);
+    const bottom =
+      element.scrollTop + element.clientHeight >= element.scrollHeight;
+
+    if (bottom && !isLoading) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  useEffect(() => {
+    const element = document.querySelector(".job-main-content");
+    element.addEventListener("scroll", handleScroll);
+    return () => {
+      element.removeEventListener("scroll", handleScroll);
+    };
+  }, [handleScroll]);
 
   return (
     <div className={styles.landingPage}>
@@ -168,7 +199,10 @@ const LandingPage = () => {
             </FormControl>
           </div>
         </div>
-        <div className="w-[calc(100% - 100px)] h-[700px] flex flex-row flex-wrap gap-[100px] overflow-y-auto">
+        <div
+          className={`${styles.job_main_content} job-main-content w-[calc(100% - 100px)] h-[700px] flex flex-row flex-wrap gap-[120px] overflow-y-auto`}
+        >
+          {isLoading && <Loading />}
           {jobData?.jdList?.map((item) => (
             <Card jobDetails={item} key={item.jdUid} />
           ))}
