@@ -1,0 +1,15 @@
+.landingPage {
+  width: calc(100% - 100px);
+  height: calc(100% - 60px);
+  margin-top: 60px;
+  margin-left: 100px;
+}
+
+.landingPage_content_area {
+  padding: 50px;
+  height: 100%;
+  width: 100%;
+  font-family: "Lexend", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
