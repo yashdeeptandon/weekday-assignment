@@ -30,3 +30,49 @@
 .job_main_content::-webkit-scrollbar-thumb:hover {
   background: #555; /* Hover color for the thumb */
 }
+
+.with_notification {
+  cursor: pointer;
+  position: relative;
+}
+
+.with_notification::after {
+  content: "";
+  position: absolute;
+  left: 1;
+  bottom: -2px;
+  width: 8%;
+  height: 2px;
+  background-color: rgb(25, 118, 210); /* Blue underline color */
+}
+
+.notification_circle {
+  top: -8px;
+  right: -8px;
+  align-items: center;
+  font-weight: bold !important;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Add shadow for depth effect */
+  display: flex;
+  flex-flow: wrap;
+  -webkit-box-pack: center;
+  place-content: center;
+  -webkit-box-align: center;
+  align-items: center;
+  box-sizing: border-box;
+  font-family: Lexend;
+  font-weight: 500 !important;
+  font-size: 0.75rem;
+  min-width: 20px;
+  line-height: 1;
+  padding: 0px 6px;
+  height: 20px;
+  border-radius: 10px;
+  z-index: 1;
+  transition: transform 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  background-color: rgb(25, 118, 210);
+  color: rgb(255, 255, 255);
+  top: 0px;
+  right: 0px;
+  transform: scale(1.1) translate(50%, -50%);
+  transform-origin: 100% 0%;
+}

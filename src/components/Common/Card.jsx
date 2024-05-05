@@ -29,8 +29,10 @@ const Card = (props) => {
               <div className="font-normal">
                 {capitalizeFirstLetter(jobDetails?.jobRole)}
               </div>
-              <div className="text-sm">
-                {capitalizeFirstLetter(jobDetails?.location)}
+              <div className="text-sm font-normal">
+                {`${capitalizeFirstLetter(jobDetails?.location)} | Exp: ${
+                  jobDetails?.minExp || "0"
+                }-${jobDetails?.maxExp || "0"}`}
               </div>
             </div>
           </div>
