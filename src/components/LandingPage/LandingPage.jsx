@@ -32,7 +32,7 @@ const LandingPage = () => {
     totalCount: 0,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const limit = 10; // Number of jobs to fetch per request or Number of items per page
   const dispatch = useDispatch();
 
