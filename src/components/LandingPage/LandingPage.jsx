@@ -25,7 +25,7 @@ const LandingPage = () => {
   const [jobData, setJobData] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [jobCount, setJobCount] = useState(0);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const limit = 10; // Number of jobs to fetch per request or Number of items per page
   const dispatch = useDispatch();
 
@@ -33,31 +33,31 @@ const LandingPage = () => {
 
   const handleMinExpChange = (event) => {
     setMinExp(event.target.value);
-    setPage(1);
+    setPage(0);
   };
 
   const handleRoleChange = (event) => {
     setRole(event.target.value);
-    setPage(1);
+    setPage(0);
   };
 
   const handleCompanyNameChange = (event) => {
     setCompanyName(event.target.value);
-    setPage(1);
+    setPage(0);
   };
 
   const handleLocationChange = (event) => {
     setLocation(event.target.value);
-    setPage(1);
+    setPage(0);
   };
 
   const handleMinBasePayChange = (event) => {
     setMinBasePay(event.target.value);
-    setPage(1);
+    setPage(0);
   };
   const handleTechStackChange = (event) => {
     setTechStack(event.target.value);
-    setPage(1);
+    setPage(0);
   };
 
   //! USE EFFECT

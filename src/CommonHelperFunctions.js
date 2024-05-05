@@ -37,17 +37,17 @@ export const Fetch_Job_Data = async (
   }
   if (companyName) {
     totalFilteredData = totalFilteredData.filter((job) =>
-      job.companyName.includes(companyName)
+      job.companyName?.toLowerCase().includes(companyName?.toLowerCase())
     );
   }
   if (role) {
     totalFilteredData = totalFilteredData.filter(
-      (job) => job.jobRole === role.toLowerCase()
+      (job) => job.jobRole?.toLowerCase() === role?.toLowerCase()
     );
   }
   if (location) {
     totalFilteredData = totalFilteredData.filter((job) =>
-      job.location.includes(location.toLowerCase())
+      job.location?.toLowerCase().includes(location?.toLowerCase())
     );
   }
   if (minBasePay) {
