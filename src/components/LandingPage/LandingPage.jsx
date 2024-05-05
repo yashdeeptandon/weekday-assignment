@@ -62,37 +62,43 @@ const LandingPage = () => {
 
   //! USE EFFECT
   useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      const offset = page * limit;
+      try {
+        const data = await Fetch_Job_Data(
+          limit,
+          offset,
+          minExp,
+          companyName,
+          location,
+          techStack,
+          role,
+          minBasePay
+        );
+
+        dispatch(LandingPageActions.setJobsData(data?.jdList));
+        dispatch(LandingPageActions.setJobsCount(data?.totalCount));
+        setJobCount(data?.totalCount);
+
+        if (page > 1) {
+          setJobData((prevData) => ({
+            ...data,
+            jdList: [...(prevData?.jdList || []), ...data.jdList], // Append new job listings
+          }));
+        } else {
+          setJobData(data);
+        }
+      } catch (error) {
+        console.error("Error fetching job data:", error);
+        // Handle error here, e.g., show error message to the user
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchData();
   }, [page, minExp, companyName, location, techStack, role, minBasePay]); // Fetch data when the page state changes
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    const offset = (page - 1) * limit;
-    const data = await Fetch_Job_Data(
-      limit,
-      offset,
-      minExp,
-      companyName,
-      location,
-      techStack,
-      role,
-      minBasePay
-    );
-
-    dispatch(LandingPageActions.setJobsData(data?.jdList));
-    dispatch(LandingPageActions.setJobsCount(data?.totalCount));
-    setJobCount(data?.totalCount);
-
-    if (page > 1) {
-      setJobData((prevData) => ({
-        ...data,
-        jdList: [...(prevData?.jdList || []), ...data.jdList], // Append new job listings
-      }));
-    } else {
-      setJobData(data);
-    }
-    setIsLoading(false);
-  };
 
   const handleScroll = () => {
     const element = document.querySelector(".job-main-content");

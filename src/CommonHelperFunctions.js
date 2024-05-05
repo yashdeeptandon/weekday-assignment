@@ -12,55 +12,57 @@ export const Fetch_Job_Data = async (
   role,
   minBasePay
 ) => {
-  const body = JSON.stringify({
-    limit: limit,
-    offset: offset,
-  });
+  try {
+    const response = await fetch(`${FETCH_JOBS}`, {
+      method: "POST",
+      headers: myHeaders,
+      body: JSON.stringify({
+        limit: limit,
+        offset: offset,
+      }),
+    });
 
-  const requestOptions = {
-    method: "POST",
-    headers: myHeaders,
-    body,
-  };
+    const data = await response.json();
 
-  const response = await fetch(`${FETCH_JOBS}`, requestOptions);
-  const data = await response.json();
+    let totalFilteredData = data.jdList;
+    let totalCount = data.totalCount;
 
-  let totalFilteredData = data.jdList;
-  let totalCount = data.totalCount;
+    if (minExperience) {
+      totalFilteredData = totalFilteredData.filter(
+        (job) => job.minExp >= minExperience
+      );
+      totalCount = totalFilteredData.length;
+    }
+    if (companyName) {
+      totalFilteredData = totalFilteredData.filter((job) =>
+        job.companyName?.toLowerCase().includes(companyName?.toLowerCase())
+      );
+    }
+    if (role) {
+      totalFilteredData = totalFilteredData.filter(
+        (job) => job.jobRole?.toLowerCase() === role?.toLowerCase()
+      );
+    }
+    if (location) {
+      totalFilteredData = totalFilteredData.filter((job) =>
+        job.location?.toLowerCase().includes(location?.toLowerCase())
+      );
+    }
+    if (minBasePay) {
+      totalFilteredData = totalFilteredData.filter(
+        (job) => job.minJdSalary >= minBasePay
+      );
+    }
 
-  if (minExperience) {
-    totalFilteredData = totalFilteredData.filter(
-      (job) => job.minExp >= minExperience
-    );
-    totalCount = totalFilteredData.length;
-  }
-  if (companyName) {
-    totalFilteredData = totalFilteredData.filter((job) =>
-      job.companyName?.toLowerCase().includes(companyName?.toLowerCase())
-    );
-  }
-  if (role) {
-    totalFilteredData = totalFilteredData.filter(
-      (job) => job.jobRole?.toLowerCase() === role?.toLowerCase()
-    );
-  }
-  if (location) {
-    totalFilteredData = totalFilteredData.filter((job) =>
-      job.location?.toLowerCase().includes(location?.toLowerCase())
-    );
-  }
-  if (minBasePay) {
-    totalFilteredData = totalFilteredData.filter(
-      (job) => job.minJdSalary >= minBasePay
-    );
-  }
+    if (totalFilteredData.length) {
+      return { jdList: totalFilteredData, totalCount: totalCount };
+    }
 
-  if (totalFilteredData.length) {
-    return { jdList: totalFilteredData, totalCount: totalCount };
+    return data;
+  } catch (error) {
+    console.error("Error fetching job data:", error);
+    throw error;
   }
-
-  return data;
 };
 
 export function capitalizeFirstLetter(string) {
