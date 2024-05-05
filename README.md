@@ -2,8 +2,8 @@
 
 Created a candidate application platform that allows users to view job listings, filter jobs based on various criteria, and implement infinite scroll for a seamless browsing experience. 
 
-Features:
-# Job Cards: Each job listing is displayed as a card containing the following information:
+# Features:
+#Job Cards: Each job listing is displayed as a card containing the following information:
 -Job title
 -Company name
 -Location
@@ -11,7 +11,7 @@ Features:
 -Experience required
 -Apply button/link
 
-# Filters: Implemented filters to allow users to refine the job listings based on:
+#Filters: Implemented filters to allow users to refine the job listings based on:
 -Min experience
 -Company name
 -Location
@@ -20,13 +20,13 @@ Features:
 -Role
 -Min base pay
 
-# Infinite Scroll: Implemented infinite scroll to load additional job listings as the user scrolls down the page. The platform fetches and displays more jobs automatically without requiring the user to click on a "Load More" button.
+#Infinite Scroll: Implemented infinite scroll to load additional job listings as the user scrolls down the page. The platform fetches and displays more jobs automatically without requiring the user to click on a "Load More" button.
 
-# Responsive Design:The platform is responsive and works well on different screen sizes, including mobile devices.
+#Responsive Design:The platform is responsive and works well on different screen sizes, including mobile devices.
 
-# NUll values are handled
+#NUll values are handled
 
-Tech Stack:
+# Tech Stack:
 -ReactJs
 -Redux
 -CSS
