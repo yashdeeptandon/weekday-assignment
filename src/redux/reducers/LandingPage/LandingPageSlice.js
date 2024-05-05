@@ -4,6 +4,7 @@ const initialState = {
   JobsData: {
     count: null,
     data: [],
+    totalFilteredData: [],
   },
 };
 const LandingPageSlice = createSlice({
@@ -15,6 +16,9 @@ const LandingPageSlice = createSlice({
     },
     setJobsCount(state, action) {
       state.JobsData.count = action.payload;
+    },
+    setTotalFilteredData(state, action) {
+      state.JobsData.totalFilteredData = action.payload;
     },
   },
 });

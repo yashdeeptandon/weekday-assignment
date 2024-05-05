@@ -12,14 +12,6 @@ export const Fetch_Job_Data = async (
   role,
   minBasePay
 ) => {
-  console.log("Limit: ", limit);
-  console.log("Offset: ", offset);
-  console.log("Min Experience: ", minExperience);
-  console.log("Company Name: ", companyName);
-  console.log("Location: ", location);
-  console.log("Role Helper: ", role);
-  console.log("Min Base Pay: ", minBasePay);
-
   const body = JSON.stringify({
     limit: limit,
     offset: offset,
@@ -33,77 +25,39 @@ export const Fetch_Job_Data = async (
 
   const response = await fetch(`${FETCH_JOBS}`, requestOptions);
   const data = await response.json();
-  console.log("Data: ", data);
 
-  let totalFilteredData = [];
-  // Apply filters
+  let totalFilteredData = data.jdList;
+  let totalCount = data.totalCount;
+
   if (minExperience) {
-    const filteredData = data?.jdList?.filter((job) => {
-      return job?.minExp >= minExperience;
-    });
-    totalFilteredData = filteredData;
-    // return { jdList: filteredData, totalCount: filteredData?.length };
+    totalFilteredData = totalFilteredData.filter(
+      (job) => job.minExp >= minExperience
+    );
+    totalCount = totalFilteredData.length;
   }
   if (companyName) {
-    if (totalFilteredData.length) {
-      totalFilteredData = totalFilteredData?.filter((job) => {
-        return job?.companyName?.includes(companyName);
-      });
-    } else {
-      const filteredData = data?.jdList?.filter((job) => {
-        return job?.companyName?.includes(companyName);
-      });
-      totalFilteredData = filteredData;
-    }
-
-    // return { jdList: filteredData, totalCount: filteredData?.length };
+    totalFilteredData = totalFilteredData.filter((job) =>
+      job.companyName.includes(companyName)
+    );
   }
   if (role) {
-    if (totalFilteredData.length) {
-      totalFilteredData = totalFilteredData?.filter((job) => {
-        return job?.jobRole === role?.toLowerCase();
-      });
-    } else {
-      const filteredData = data?.jdList?.filter((job) => {
-        return job?.jobRole === role?.toLowerCase();
-      });
-      totalFilteredData = filteredData;
-    }
-
-    // return { jdList: filteredData, totalCount: filteredData?.length };
+    totalFilteredData = totalFilteredData.filter(
+      (job) => job.jobRole === role.toLowerCase()
+    );
   }
   if (location) {
-    if (totalFilteredData.length) {
-      totalFilteredData = totalFilteredData?.filter((job) => {
-        return job?.location?.includes(location.toLowerCase());
-      });
-    } else {
-      const filteredData = data?.jdList?.filter((job) => {
-        return job?.location?.includes(location.toLowerCase());
-      });
-      totalFilteredData = filteredData;
-    }
-
-    // return { jdList: filteredData, totalCount: filteredData?.length };
+    totalFilteredData = totalFilteredData.filter((job) =>
+      job.location.includes(location.toLowerCase())
+    );
   }
   if (minBasePay) {
-    if (totalFilteredData.length) {
-      totalFilteredData = totalFilteredData?.filter((job) => {
-        return job?.minJdSalary >= minBasePay;
-      });
-    } else {
-      const filteredData = data?.jdList?.filter((job) => {
-        return job?.minJdSalary >= minBasePay;
-      });
-      totalFilteredData = filteredData;
-    }
-
-    // return { jdList: filteredData, totalCount: filteredData?.length };
+    totalFilteredData = totalFilteredData.filter(
+      (job) => job.minJdSalary >= minBasePay
+    );
   }
-  console.log("Total Filter Data", totalFilteredData);
 
   if (totalFilteredData.length) {
-    return { jdList: totalFilteredData, totalCount: totalFilteredData?.length };
+    return { jdList: totalFilteredData, totalCount: totalCount };
   }
 
   return data;

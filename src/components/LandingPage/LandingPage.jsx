@@ -10,6 +10,8 @@ import styles from "./LandingPage.module.css";
 import Card from "../Common/Card";
 import { Fetch_Job_Data } from "../../CommonHelperFunctions";
 import Loading from "../Common/Loading";
+import { useDispatch } from "react-redux";
+import { LandingPageActions } from "../../redux/reducers/LandingPage/LandingPageSlice";
 
 const LandingPage = () => {
   //! STATES
@@ -24,8 +26,8 @@ const LandingPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [jobCount, setJobCount] = useState(0);
   const [page, setPage] = useState(1);
-  console.log("Page:", page);
   const limit = 10; // Number of jobs to fetch per request or Number of items per page
+  const dispatch = useDispatch();
 
   //! HANDLER FUNCTIONS
 
@@ -59,11 +61,8 @@ const LandingPage = () => {
   };
 
   //! USE EFFECT
-  console.log("Role", role);
-
   useEffect(() => {
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, minExp, companyName, location, techStack, role, minBasePay]); // Fetch data when the page state changes
 
   const fetchData = async () => {
@@ -79,23 +78,21 @@ const LandingPage = () => {
       role,
       minBasePay
     );
-    console.log("ResData: ", data);
-    // save to redux
+
+    dispatch(LandingPageActions.setJobsData(data?.jdList));
+    dispatch(LandingPageActions.setJobsCount(data?.totalCount));
     setJobCount(data?.totalCount);
+
     if (page > 1) {
-      // save to redux
       setJobData((prevData) => ({
         ...data,
         jdList: [...(prevData?.jdList || []), ...data.jdList], // Append new job listings
       }));
     } else {
-      // save to redux
       setJobData(data);
     }
     setIsLoading(false);
   };
-
-  console.log("jobData: ", jobData);
 
   const handleScroll = () => {
     const element = document.querySelector(".job-main-content");
@@ -124,7 +121,7 @@ const LandingPage = () => {
         </div>
 
         {/* Filter */}
-        <div className="flex flex-row gap-2.5 flex-wrap mt-8">
+        <div className="flex flex-row gap-2.5 flex-wrap mt-8 justify-center">
           {/* Min Experience */}
           <div className="w-[200px]">
             <FormControl fullWidth>
@@ -229,7 +226,7 @@ const LandingPage = () => {
           </div>
         </div>
         <div
-          className={`${styles.job_main_content} job-main-content w-[calc(100% - 100px)] h-[700px] flex flex-row flex-wrap gap-[120px] overflow-y-auto`}
+          className={`${styles.job_main_content} job-main-content w-[calc(100% - 100px)] h-[640px] flex flex-row flex-wrap gap-[200px] justify-center overflow-y-auto`}
         >
           {isLoading && <Loading />}
           {jobData?.jdList?.map((item) => (
