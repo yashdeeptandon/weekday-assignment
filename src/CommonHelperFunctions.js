@@ -10,8 +10,15 @@ export const Fetch_Job_Data = async (
   companyName,
   location,
   role,
-  minBasePay
+  minBasePay,
+  page
 ) => {
+  if (minExperience || companyName || location || role || minBasePay) {
+    console.log("true");
+  }
+  console.log("limit", limit);
+  console.log("Offset", offset);
+  console.log("Page:", page);
   try {
     const response = await fetch(`${FETCH_JOBS}`, {
       method: "POST",
@@ -27,11 +34,12 @@ export const Fetch_Job_Data = async (
     let totalFilteredData = data.jdList;
     let totalCount = data.totalCount;
 
+    console.log("Company Name", companyName);
+
     if (minExperience) {
       totalFilteredData = totalFilteredData.filter(
         (job) => job.minExp >= minExperience
       );
-      totalCount = totalFilteredData.length;
     }
     if (companyName) {
       totalFilteredData = totalFilteredData.filter((job) =>
@@ -54,11 +62,11 @@ export const Fetch_Job_Data = async (
       );
     }
 
+    console.log("Total Filtered Data: ", totalFilteredData);
+
     if (totalFilteredData.length) {
       return { jdList: totalFilteredData, totalCount: totalCount };
     }
-
-    return data;
   } catch (error) {
     console.error("Error fetching job data:", error);
     throw error;

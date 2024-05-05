@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   FormControl,
   InputLabel,
@@ -30,7 +30,6 @@ const LandingPage = () => {
   const dispatch = useDispatch();
 
   //! HANDLER FUNCTIONS
-
   const handleMinExpChange = (event) => {
     setMinExp(event.target.value);
     setPage(0);
@@ -60,45 +59,227 @@ const LandingPage = () => {
     setPage(0);
   };
 
-  //! USE EFFECT
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      const offset = page * limit;
-      try {
-        const data = await Fetch_Job_Data(
-          limit,
-          offset,
-          minExp,
-          companyName,
-          location,
-          techStack,
-          role,
-          minBasePay
-        );
+  const fetchData = useCallback(async () => {
+    console.log("Fetch Data");
+    console.log(page);
+    setIsLoading(true);
+    const offset = page * limit;
+    try {
+      const data = await Fetch_Job_Data(
+        limit,
+        offset,
+        minExp,
+        companyName,
+        location,
+        techStack,
+        role,
+        minBasePay,
+        page
+      );
 
-        dispatch(LandingPageActions.setJobsData(data?.jdList));
-        dispatch(LandingPageActions.setJobsCount(data?.totalCount));
-        setJobCount(data?.totalCount);
+      updateJobData(data);
+    } catch (error) {
+      console.error("Error fetching job data:", error);
+      // Handle error here, e.g., show error message to the user
+    } finally {
+      setIsLoading(false);
+    }
+  }, [
+    page,
+    limit,
+    minExp,
+    companyName,
+    location,
+    techStack,
+    role,
+    minBasePay,
+    setIsLoading,
+  ]);
 
-        if (page > 1) {
-          setJobData((prevData) => ({
-            ...data,
-            jdList: [...(prevData?.jdList || []), ...data.jdList], // Append new job listings
-          }));
-        } else {
-          setJobData(data);
-        }
-      } catch (error) {
-        console.error("Error fetching job data:", error);
-        // Handle error here, e.g., show error message to the user
-      } finally {
-        setIsLoading(false);
+  const fetchFilteredData = useCallback(async () => {
+    console.log("Fetch Filtered Data");
+    console.log(page);
+    setIsLoading(true);
+    try {
+      const data = await Fetch_Job_Data(
+        1000,
+        0,
+        minExp,
+        companyName,
+        location,
+        techStack,
+        role,
+        minBasePay,
+        page
+      );
+
+      updateJobData(data);
+    } catch (error) {
+      console.error("Error fetching job data:", error);
+      // Handle error here, e.g., show error message to the user
+    } finally {
+      setIsLoading(false);
+    }
+  }, [
+    page,
+    minExp,
+    companyName,
+    location,
+    techStack,
+    role,
+    minBasePay,
+    setIsLoading,
+  ]);
+
+  const updateJobData = useCallback(
+    (data) => {
+      dispatch(LandingPageActions.setJobsData(data?.jdList));
+      dispatch(LandingPageActions.setJobsCount(data?.totalCount));
+      setJobCount(data?.totalCount);
+
+      if (page > 1) {
+        setJobData((prevData) => ({
+          ...data,
+          jdList: [
+            ...(prevData?.jdList || []),
+            ...data.jdList.filter(
+              (newItem) =>
+                !prevData.jdList.some(
+                  (prevItem) => prevItem.jdUid === newItem.jdUid
+                )
+            ),
+          ],
+        }));
+      } else {
+        setJobData(data);
       }
-    };
+    },
+    [page, dispatch, setJobCount, setJobData]
+  );
 
-    fetchData();
-  }, [page, minExp, companyName, location, techStack, role, minBasePay]); // Fetch data when the page state changes
+  useEffect(() => {
+    console.log("Page Landing: ", page);
+
+    if (minExp || companyName || location || techStack || role || minBasePay) {
+      fetchFilteredData();
+    } else {
+      fetchData();
+    }
+  }, [
+    page,
+    minExp,
+    companyName,
+    location,
+    techStack,
+    role,
+    minBasePay,
+    fetchData,
+    fetchFilteredData,
+  ]);
+
+  //! USE EFFECT
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     console.log("Fetch Data");
+  //     console.log(page);
+  //     setIsLoading(true);
+  //     const offset = page * limit;
+  //     try {
+  //       const data = await Fetch_Job_Data(
+  //         limit,
+  //         offset,
+  //         minExp,
+  //         companyName,
+  //         location,
+  //         techStack,
+  //         role,
+  //         minBasePay,
+  //         page
+  //       );
+
+  //       dispatch(LandingPageActions.setJobsData(data?.jdList));
+  //       dispatch(LandingPageActions.setJobsCount(data?.totalCount));
+  //       setJobCount(data?.totalCount);
+
+  //       if (page > 1) {
+  //         setJobData((prevData) => ({
+  //           ...data,
+  //           jdList: [
+  //             ...(prevData?.jdList || []),
+  //             ...data.jdList.filter(
+  //               (newItem) =>
+  //                 !prevData.jdList.some(
+  //                   (prevItem) => prevItem.jdUid === newItem.jdUid
+  //                 )
+  //             ),
+  //           ],
+  //         }));
+  //       } else {
+  //         setJobData(data);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching job data:", error);
+  //       // Handle error here, e.g., show error message to the user
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+
+  //   const fetchFilteredData = async () => {
+  //     console.log("Fetch Filtered Data");
+  //     console.log(page);
+  //     setIsLoading(true);
+  //     try {
+  //       const data = await Fetch_Job_Data(
+  //         1000,
+  //         0,
+  //         minExp,
+  //         companyName,
+  //         location,
+  //         techStack,
+  //         role,
+  //         minBasePay,
+  //         page
+  //       );
+
+  //       dispatch(LandingPageActions.setJobsData(data?.jdList));
+  //       dispatch(LandingPageActions.setJobsCount(data?.totalCount));
+  //       setJobCount(data?.totalCount);
+
+  //       if (page > 1) {
+  //         setJobData((prevData) => ({
+  //           ...data,
+  //           jdList: [
+  //             ...(prevData?.jdList || []),
+  //             ...data.jdList.filter(
+  //               (newItem) =>
+  //                 !prevData.jdList.some(
+  //                   (prevItem) => prevItem.jdUid === newItem.jdUid
+  //                 )
+  //             ),
+  //           ],
+  //         }));
+  //       } else {
+  //         setJobData(data);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching job data:", error);
+  //       // Handle error here, e.g., show error message to the user
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+
+  //   console.log("Page Landing: ", page);
+
+  //   if (minExp || companyName || location || techStack || role || minBasePay) {
+  //     fetchFilteredData();
+  //   } else {
+  //     fetchData();
+  //   }
+  // }, [page, minExp, companyName, location, techStack, role, minBasePay]); // Fetch data when the page state changes
+
+  console.log("Job Data: ", jobData);
 
   const handleScroll = () => {
     const element = document.querySelector(".job-main-content");
@@ -238,6 +419,11 @@ const LandingPage = () => {
           {jobData?.jdList?.map((item) => (
             <Card jobDetails={item} key={item.jdUid} />
           ))}
+          {!jobData?.jdList?.length ? (
+            <div className="mt-[50px]">No Jobs Found!</div>
+          ) : (
+            ""
+          )}
         </div>
       </div>
     </div>
