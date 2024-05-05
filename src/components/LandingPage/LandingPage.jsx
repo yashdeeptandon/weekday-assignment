@@ -12,6 +12,10 @@ import { Fetch_Job_Data } from "../../CommonHelperFunctions";
 import Loading from "../Common/Loading";
 import { useDispatch } from "react-redux";
 import { LandingPageActions } from "../../redux/reducers/LandingPage/LandingPageSlice";
+import { FETCH_JOBS } from "../../utils";
+
+const myHeaders = new Headers();
+myHeaders.append("Content-Type", "application/json");
 
 const LandingPage = () => {
   //! STATES
@@ -23,45 +27,82 @@ const LandingPage = () => {
   const [minBasePay, setMinBasePay] = useState("");
   const [techStack, setTechStack] = useState("");
   const [jobData, setJobData] = useState();
+  const [filteredJobData, setFilteredJobData] = useState({
+    jdList: [],
+    totalCount: 0,
+  });
   const [isLoading, setIsLoading] = useState(false);
-  const [jobCount, setJobCount] = useState(0);
   const [page, setPage] = useState(0);
   const limit = 10; // Number of jobs to fetch per request or Number of items per page
   const dispatch = useDispatch();
 
   //! HANDLER FUNCTIONS
   const handleMinExpChange = (event) => {
+    setFilteredJobData({
+      jdList: [],
+      totalCount: 0,
+    });
     setMinExp(event.target.value);
     setPage(0);
   };
 
   const handleRoleChange = (event) => {
+    setFilteredJobData({
+      jdList: [],
+      totalCount: 0,
+    });
     setRole(event.target.value);
     setPage(0);
   };
 
   const handleCompanyNameChange = (event) => {
+    setFilteredJobData({
+      jdList: [],
+      totalCount: 0,
+    });
     setCompanyName(event.target.value);
     setPage(0);
   };
 
   const handleLocationChange = (event) => {
+    setFilteredJobData({
+      jdList: [],
+      totalCount: 0,
+    });
     setLocation(event.target.value);
     setPage(0);
   };
 
   const handleMinBasePayChange = (event) => {
+    setFilteredJobData({
+      jdList: [],
+      totalCount: 0,
+    });
     setMinBasePay(event.target.value);
     setPage(0);
   };
   const handleTechStackChange = (event) => {
+    setFilteredJobData({
+      jdList: [],
+      totalCount: 0,
+    });
     setTechStack(event.target.value);
     setPage(0);
   };
 
+  const handleScroll = () => {
+    const element = document.querySelector(".job-main-content");
+    const bottom =
+      element.scrollTop + element.clientHeight >= element.scrollHeight;
+
+    if (bottom && !isLoading) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  //! USE Callback
+
   const fetchData = useCallback(async () => {
-    console.log("Fetch Data");
-    console.log(page);
     setIsLoading(true);
     const offset = page * limit;
     try {
@@ -76,7 +117,6 @@ const LandingPage = () => {
         minBasePay,
         page
       );
-
       updateJobData(data);
     } catch (error) {
       console.error("Error fetching job data:", error);
@@ -97,28 +137,75 @@ const LandingPage = () => {
   ]);
 
   const fetchFilteredData = useCallback(async () => {
-    console.log("Fetch Filtered Data");
-    console.log(page);
     setIsLoading(true);
     try {
-      const data = await Fetch_Job_Data(
-        1000,
-        0,
-        minExp,
-        companyName,
-        location,
-        techStack,
-        role,
-        minBasePay,
-        page
+      const response = await fetch(`${FETCH_JOBS}`, {
+        method: "POST",
+        headers: myHeaders,
+        body: JSON.stringify({
+          limit: 1000,
+          offset: 0,
+        }),
+      });
+
+      const data = await response.json();
+
+      let totalFilteredData = data.jdList;
+
+      if (minExp) {
+        totalFilteredData = totalFilteredData.filter(
+          (job) => job.minExp >= minExp
+        );
+      }
+      if (companyName) {
+        totalFilteredData = totalFilteredData.filter((job) =>
+          job.companyName?.toLowerCase().includes(companyName?.toLowerCase())
+        );
+      }
+      if (role) {
+        totalFilteredData = totalFilteredData.filter(
+          (job) => job.jobRole?.toLowerCase() === role?.toLowerCase()
+        );
+      }
+      if (location) {
+        totalFilteredData = totalFilteredData.filter((job) =>
+          job.location?.toLowerCase().includes(location?.toLowerCase())
+        );
+      }
+      if (minBasePay) {
+        totalFilteredData = totalFilteredData.filter(
+          (job) => job.minJdSalary >= minBasePay
+        );
+      }
+
+      const currentData = totalFilteredData.filter(
+        (_, index) => index >= page * 10 && index < (page + 1) * 10
       );
 
-      updateJobData(data);
+      if (currentData.length) {
+        setJobData({
+          jdList: [],
+          totalCount: 0,
+        });
+        setFilteredJobData((prevData) => ({
+          jdList: [...prevData.jdList, ...currentData],
+          totalCount: totalFilteredData?.length,
+        }));
+        setIsLoading(false);
+      } else {
+        setJobData({
+          jdList: [],
+          totalCount: 0,
+        });
+        setFilteredJobData({
+          jdList: currentData,
+          totalCount: totalFilteredData?.length,
+        });
+        setIsLoading(false);
+      }
     } catch (error) {
       console.error("Error fetching job data:", error);
-      // Handle error here, e.g., show error message to the user
-    } finally {
-      setIsLoading(false);
+      throw error;
     }
   }, [
     page,
@@ -135,7 +222,6 @@ const LandingPage = () => {
     (data) => {
       dispatch(LandingPageActions.setJobsData(data?.jdList));
       dispatch(LandingPageActions.setJobsCount(data?.totalCount));
-      setJobCount(data?.totalCount);
 
       if (page > 1) {
         setJobData((prevData) => ({
@@ -154,12 +240,12 @@ const LandingPage = () => {
         setJobData(data);
       }
     },
-    [page, dispatch, setJobCount, setJobData]
+    [page]
   );
 
-  useEffect(() => {
-    console.log("Page Landing: ", page);
+  //! USE Effect
 
+  useEffect(() => {
     if (minExp || companyName || location || techStack || role || minBasePay) {
       fetchFilteredData();
     } else {
@@ -177,120 +263,6 @@ const LandingPage = () => {
     fetchFilteredData,
   ]);
 
-  //! USE EFFECT
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     console.log("Fetch Data");
-  //     console.log(page);
-  //     setIsLoading(true);
-  //     const offset = page * limit;
-  //     try {
-  //       const data = await Fetch_Job_Data(
-  //         limit,
-  //         offset,
-  //         minExp,
-  //         companyName,
-  //         location,
-  //         techStack,
-  //         role,
-  //         minBasePay,
-  //         page
-  //       );
-
-  //       dispatch(LandingPageActions.setJobsData(data?.jdList));
-  //       dispatch(LandingPageActions.setJobsCount(data?.totalCount));
-  //       setJobCount(data?.totalCount);
-
-  //       if (page > 1) {
-  //         setJobData((prevData) => ({
-  //           ...data,
-  //           jdList: [
-  //             ...(prevData?.jdList || []),
-  //             ...data.jdList.filter(
-  //               (newItem) =>
-  //                 !prevData.jdList.some(
-  //                   (prevItem) => prevItem.jdUid === newItem.jdUid
-  //                 )
-  //             ),
-  //           ],
-  //         }));
-  //       } else {
-  //         setJobData(data);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching job data:", error);
-  //       // Handle error here, e.g., show error message to the user
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  //   const fetchFilteredData = async () => {
-  //     console.log("Fetch Filtered Data");
-  //     console.log(page);
-  //     setIsLoading(true);
-  //     try {
-  //       const data = await Fetch_Job_Data(
-  //         1000,
-  //         0,
-  //         minExp,
-  //         companyName,
-  //         location,
-  //         techStack,
-  //         role,
-  //         minBasePay,
-  //         page
-  //       );
-
-  //       dispatch(LandingPageActions.setJobsData(data?.jdList));
-  //       dispatch(LandingPageActions.setJobsCount(data?.totalCount));
-  //       setJobCount(data?.totalCount);
-
-  //       if (page > 1) {
-  //         setJobData((prevData) => ({
-  //           ...data,
-  //           jdList: [
-  //             ...(prevData?.jdList || []),
-  //             ...data.jdList.filter(
-  //               (newItem) =>
-  //                 !prevData.jdList.some(
-  //                   (prevItem) => prevItem.jdUid === newItem.jdUid
-  //                 )
-  //             ),
-  //           ],
-  //         }));
-  //       } else {
-  //         setJobData(data);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching job data:", error);
-  //       // Handle error here, e.g., show error message to the user
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  //   console.log("Page Landing: ", page);
-
-  //   if (minExp || companyName || location || techStack || role || minBasePay) {
-  //     fetchFilteredData();
-  //   } else {
-  //     fetchData();
-  //   }
-  // }, [page, minExp, companyName, location, techStack, role, minBasePay]); // Fetch data when the page state changes
-
-  console.log("Job Data: ", jobData);
-
-  const handleScroll = () => {
-    const element = document.querySelector(".job-main-content");
-    const bottom =
-      element.scrollTop + element.clientHeight >= element.scrollHeight;
-
-    if (bottom && !isLoading) {
-      setPage((prevPage) => prevPage + 1);
-    }
-  };
-
   useEffect(() => {
     const element = document.querySelector(".job-main-content");
     element.addEventListener("scroll", handleScroll);
@@ -304,7 +276,9 @@ const LandingPage = () => {
       <div className={`${styles.landingPage_content_area} w-full h-full`}>
         <div className={`flex justify-center ${styles.with_notification}`}>
           Search Jobs
-          <div className={`${styles.notification_circle}`}>{jobCount}</div>
+          <div className={`${styles.notification_circle}`}>
+            {jobData?.totalCount || filteredJobData?.totalCount}
+          </div>
         </div>
 
         {/* Filter */}
@@ -340,9 +314,10 @@ const LandingPage = () => {
                 onChange={handleRoleChange}
               >
                 <MenuItem value="">Select Role</MenuItem>
-                <MenuItem value="Backend">Backend</MenuItem>
+                <MenuItem value="Android">Android</MenuItem>
                 <MenuItem value="Frontend">Frontend</MenuItem>
-                <MenuItem value="Fullstack">Fullstack</MenuItem>
+                <MenuItem value="Tech lead">Tech Lead</MenuItem>
+                <MenuItem value="Backend">Backend</MenuItem>
                 <MenuItem value="IOS">IOS</MenuItem>
               </Select>
             </FormControl>
@@ -359,6 +334,7 @@ const LandingPage = () => {
               >
                 <MenuItem value="">Select Location</MenuItem>
                 <MenuItem value="Bangalore">Bangalore</MenuItem>
+                <MenuItem value="Remote">Remote</MenuItem>
                 <MenuItem value="Delhi">Delhi</MenuItem>
                 <MenuItem value="Noida">Noida</MenuItem>
                 <MenuItem value="Gurgaon">Gurgaon</MenuItem>
@@ -416,10 +392,21 @@ const LandingPage = () => {
           className={`${styles.job_main_content} job-main-content w-[calc(100% - 100px)] h-[640px] flex flex-row flex-wrap gap-[200px] justify-center overflow-y-auto`}
         >
           {isLoading && <Loading />}
-          {jobData?.jdList?.map((item) => (
-            <Card jobDetails={item} key={item.jdUid} />
-          ))}
-          {!jobData?.jdList?.length ? (
+          {jobData?.jdList?.length ? (
+            jobData?.jdList?.map((item) => (
+              <Card jobDetails={item} key={item.jdUid} />
+            ))
+          ) : (
+            <></>
+          )}
+          {filteredJobData?.jdList.length ? (
+            filteredJobData?.jdList?.map((item) => (
+              <Card jobDetails={item} key={item.jdUid} />
+            ))
+          ) : (
+            <></>
+          )}
+          {!jobData?.jdList?.length && !filteredJobData?.jdList?.length ? (
             <div className="mt-[50px]">No Jobs Found!</div>
           ) : (
             ""

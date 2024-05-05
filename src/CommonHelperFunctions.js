@@ -10,15 +10,8 @@ export const Fetch_Job_Data = async (
   companyName,
   location,
   role,
-  minBasePay,
-  page
+  minBasePay
 ) => {
-  if (minExperience || companyName || location || role || minBasePay) {
-    console.log("true");
-  }
-  console.log("limit", limit);
-  console.log("Offset", offset);
-  console.log("Page:", page);
   try {
     const response = await fetch(`${FETCH_JOBS}`, {
       method: "POST",
@@ -33,8 +26,6 @@ export const Fetch_Job_Data = async (
 
     let totalFilteredData = data.jdList;
     let totalCount = data.totalCount;
-
-    console.log("Company Name", companyName);
 
     if (minExperience) {
       totalFilteredData = totalFilteredData.filter(
@@ -61,8 +52,6 @@ export const Fetch_Job_Data = async (
         (job) => job.minJdSalary >= minBasePay
       );
     }
-
-    console.log("Total Filtered Data: ", totalFilteredData);
 
     if (totalFilteredData.length) {
       return { jdList: totalFilteredData, totalCount: totalCount };

@@ -1,8 +1,8 @@
-import { useState } from "react";
 import { capitalizeFirstLetter } from "../../CommonHelperFunctions";
 import tick from "../../assets/tick.png";
 import FadingText from "./FadingText";
 import "./Card.css";
+import PropTypes from "prop-types";
 
 const Card = (props) => {
   const jobDetails = props?.jobDetails;
@@ -79,5 +79,8 @@ const Card = (props) => {
     </div>
   );
 };
-
+Card.propTypes = {
+  jobDetails: PropTypes.object, // Adjust the type according to the actual type of jobDetails
+  // Define other PropTypes for your component's props if needed
+};
 export default Card;
