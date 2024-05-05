@@ -31,6 +31,7 @@ Created a candidate application platform that allows users to view job listings,
 -Redux
 -CSS
 -Material UI
+-Tailwind
 
 # To run the application locally:
 1. Install the zip of this repo.
